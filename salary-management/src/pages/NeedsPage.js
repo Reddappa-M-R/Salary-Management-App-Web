@@ -1,35 +1,82 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Import Link for navigation
+import { useNavigate } from 'react-router-dom'; // For navigation
 
 const NeedsPage = () => {
   const [needsData, setNeedsData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); // Number of items to show per page
-  const [loading, setLoading] = useState(true); // Loading state to show loading message
-  const [error, setError] = useState(''); // Error state for API issues
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  const navigate = useNavigate(); // Initialize navigation
 
   useEffect(() => {
-    setLoading(true); // Set loading to true when fetching new data
-    setError(''); // Reset error before making a request
+    setLoading(true);
+    setError('');
     fetch('https://salary-management-app-blond.vercel.app/needs')
       .then((response) => response.json())
       .then((data) => {
-        setNeedsData(data.data); // Set the 'data' from the API response
-        setLoading(false); // Set loading to false once data is fetched
+        if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+          setNeedsData(data.data); // Use fetched data
+        } else {
+          // Fallback to dummy data if no data is returned
+          setNeedsData([
+            {
+              id: 1,
+              Needs: 'Office Supplies',
+              amount: 100,
+              date: new Date().toISOString(),
+            },
+            {
+              id: 2,
+              Needs: 'Projector',
+              amount: 500,
+              date: new Date().toISOString(),
+            },
+            {
+              id: 3,
+              Needs: 'Team Lunch',
+              amount: 200,
+              date: new Date().toISOString(),
+            },
+          ]);
+        }
+        setLoading(false);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
         setError('There was an error loading the data.');
-        setLoading(false); // Set loading to false in case of an error
+        setLoading(false);
       });
   }, []);
+  
 
-  // Get the current page data
+  const deleteNeed = async (needId) => {
+    try {
+      const response = await fetch(`https://salary-management-app-blond.vercel.app/needs/${needId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete the need');
+      }
+
+      // Re-fetch the data after successful deletion
+      const newData = await fetch('https://salary-management-app-blond.vercel.app/needs')
+        .then((response) => response.json())
+        .then((data) => data.data); // Get the updated data
+
+      setNeedsData(newData); // Update the state with the new data
+    } catch (error) {
+      console.error('Error deleting need:', error);
+      setError('Failed to delete the need.');
+    }
+  };
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = needsData.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Handle page change
   const handleNextPage = () => {
     if (currentPage * itemsPerPage < needsData.length) {
       setCurrentPage(currentPage + 1);
@@ -42,48 +89,42 @@ const NeedsPage = () => {
     }
   };
 
-  // Handle items per page change
   const handleItemsPerPageChange = (e) => {
     setItemsPerPage(Number(e.target.value));
-    setCurrentPage(1); // Reset to first page when items per page changes
+    setCurrentPage(1);
   };
 
-  // Calculate total pages
   const totalPages = Math.ceil(needsData.length / itemsPerPage);
-
-  // Determine if there's a next page
   const isNextPageAvailable = currentPage * itemsPerPage < needsData.length;
-  // Determine if we're on the first page
   const isFirstPage = currentPage === 1;
 
   return (
     <div style={{ padding: '20px' }}>
       <h2 style={{ textAlign: 'center', color: 'green' }}>Needs</h2>
       
+      {/* "Create New Need" Button */}
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <button
+          onClick={() => navigate('/create-need')}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: 'green',
+            color: 'white',
+            border: 'none',
+            cursor: 'pointer',
+            marginBottom: '20px',
+          }}
+        >
+          Create New Need
+        </button>
+      </div>
+
       {loading ? (
         <div style={{ textAlign: 'center', color: 'green' }}>Loading...</div>
       ) : error ? (
         <div style={{ textAlign: 'center', color: 'red' }}>{error}</div>
       ) : (
         <div>
-          {/* Button to navigate to the CreateNeedPage */}
-          <div style={{ marginBottom: '20px' }}>
-            <Link to="/create-need">
-              <button
-                style={{
-                  padding: '10px 20px',
-                  backgroundColor: 'green',
-                  color: 'white',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                Create New Need
-              </button>
-            </Link>
-          </div>
-
-          {/* Items per page selector */}
           <div style={{ marginBottom: '10px', textAlign: 'right' }}>
             <label style={{ marginRight: '10px' }}>Items per page: </label>
             <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
@@ -101,6 +142,7 @@ const NeedsPage = () => {
                 <th style={{ backgroundColor: 'green', color: 'white', padding: '10px' }}>Need</th>
                 <th style={{ backgroundColor: 'green', color: 'white', padding: '10px' }}>Amount</th>
                 <th style={{ backgroundColor: 'green', color: 'white', padding: '10px' }}>Date</th>
+                <th style={{ backgroundColor: 'green', color: 'white', padding: '10px' }}>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -113,11 +155,19 @@ const NeedsPage = () => {
                     <td style={{ padding: '10px', border: '1px solid #ddd' }}>
                       {new Date(item.date).toLocaleDateString()}
                     </td>
+                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                      <button
+                        onClick={() => deleteNeed(item.id)}
+                        style={{ padding: '5px 10px', backgroundColor: 'red', color: 'white' }}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: 'center', padding: '10px' }}>
+                  <td colSpan="5" style={{ textAlign: 'center', padding: '10px' }}>
                     No data available
                   </td>
                 </tr>
@@ -127,10 +177,8 @@ const NeedsPage = () => {
         </div>
       )}
 
-      {/* Pagination Controls */}
       {!loading && !error && (
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-          {/* Previous Page button */}
           <div>
             <button
               onClick={handlePreviousPage}
@@ -148,12 +196,10 @@ const NeedsPage = () => {
             </button>
           </div>
 
-          {/* Page Info */}
           <div style={{ alignSelf: 'center', color: 'green' }}>
             Page {currentPage} of {totalPages}
           </div>
 
-          {/* Next Page button */}
           <div>
             <button
               onClick={handleNextPage}
