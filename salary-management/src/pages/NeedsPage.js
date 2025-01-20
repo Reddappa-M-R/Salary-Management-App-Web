@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // Import Link for navigation
 
 const NeedsPage = () => {
   const [needsData, setNeedsData] = useState([]);
@@ -10,7 +11,7 @@ const NeedsPage = () => {
   useEffect(() => {
     setLoading(true); // Set loading to true when fetching new data
     setError(''); // Reset error before making a request
-    fetch('https://salary-management-app-h2f4-gfz329ei5-reddappa-m-rs-projects.vercel.app/needs/')
+    fetch('https://salary-management-app-h2f4.vercel.app/needs')
       .then((response) => response.json())
       .then((data) => {
         setNeedsData(data.data); // Set the 'data' from the API response
@@ -65,6 +66,23 @@ const NeedsPage = () => {
         <div style={{ textAlign: 'center', color: 'red' }}>{error}</div>
       ) : (
         <div>
+          {/* Button to navigate to the CreateNeedPage */}
+          <div style={{ marginBottom: '20px' }}>
+            <Link to="/create-need">
+              <button
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: 'green',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                Create New Need
+              </button>
+            </Link>
+          </div>
+
           {/* Items per page selector */}
           <div style={{ marginBottom: '10px', textAlign: 'right' }}>
             <label style={{ marginRight: '10px' }}>Items per page: </label>
