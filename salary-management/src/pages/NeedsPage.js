@@ -11,7 +11,7 @@ const NeedsPage = () => {
   useEffect(() => {
     setLoading(true); // Set loading to true when fetching new data
     setError(''); // Reset error before making a request
-    fetch('https://salary-management-app-h2f4.vercel.app/needs')
+    fetch('https://salary-management-app-blond.vercel.app/needs')
       .then((response) => response.json())
       .then((data) => {
         setNeedsData(data.data); // Set the 'data' from the API response

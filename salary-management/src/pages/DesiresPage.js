@@ -10,7 +10,7 @@ const DesirePage = () => {
   useEffect(() => {
     setLoading(true); // Set loading to true when fetching new data
     setError(''); // Reset error before making a request
-    fetch('https://salary-management-app-h2f4.vercel.app/desires')
+    fetch('https://salary-management-app-blond.vercel.app/desires')
       .then((response) => response.json())
       .then((data) => {
         setDesireData(data.data); // Set the 'data' from the API response
