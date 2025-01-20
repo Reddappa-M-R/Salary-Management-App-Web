@@ -22,7 +22,7 @@ const CreateNeedPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('https://salary-management-app-h2f4.vercel.app/needs', {
+      const response = await fetch('https://salary-management-app-blond.vercel.app/needs', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -35,6 +35,7 @@ const CreateNeedPage = () => {
       }
 
       const data = await response.json();
+      console.log('Need created:', data);
       setSuccessMessage('Need created successfully!');
       setError('');
       setNeed({ Needs: '', amount: '', date: '' }); // Clear form after submission

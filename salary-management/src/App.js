@@ -2,6 +2,7 @@ import React from 'react';
 import NavigationBar from './components/NavigationBar';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; // Import Routes
 import NeedsPage from './pages/NeedsPage';
+import CreateNeedPage from './pages/CreateNeedPage'; // Path to CreateNeedPage
 import DesiresPage from './pages/DesiresPage';
 
 const App = () => {
@@ -12,6 +13,7 @@ const App = () => {
         <div style={{ marginLeft: '250px', padding: '20px', width: '100%' }}>
           <Routes> {/* Use Routes instead of Switch */}
             <Route path="/needs" element={<NeedsPage />} />
+            <Route path="/create-need" element={<CreateNeedPage />} /> {/* Create new need page */}
             <Route path="/desires" element={<DesiresPage />} />
             <Route path="/" element={<h2>Welcome to Salary Management</h2>} />
           </Routes>
