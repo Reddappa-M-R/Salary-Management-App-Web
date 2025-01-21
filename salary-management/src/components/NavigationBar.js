@@ -15,6 +15,9 @@ const NavigationBar = () => {
         <li>
           <Link to="/desires" className="desires-link">Desires</Link>
         </li>
+        <li>
+        <Link to="/dashboard">Dashboard</Link>
+        </li>
       </ul>
     </div>
   );
